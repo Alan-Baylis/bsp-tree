@@ -29,33 +29,22 @@ namespace BspTree.Construct
         {
             this.CreateNormals();
 
-            //setting the first plane as splitter
-            var splitter = this._planes.First();
-
-            var result = new Tree
-            {
-                Plane = splitter
-            };
-
-            this._planes.Remove(splitter);
-
-            this.CreateLeft(result, this._planes);
-
-            this.CreateRight(result, this._planes);
-
-            return result;
+            //passing copy of planes
+            return this.CreateNode(null, this._planes.ToList());
         }
 
-        /// <summary>
-        /// Creates left (filled) subtree for the passed parent
-        /// </summary>
-        private void CreateLeft(Tree parent, List<Plane> planes)
+        private Tree CreateNode(Plane parent, List<Plane> planes)
         {
-            var innerPlanes = new List<Plane>();
+            var splitter = planes.First();
+            planes.Remove(splitter);
+
+            var leftPlanes = new List<Plane>();
+            var rightPlanes = new List<Plane>();
+
             foreach (var item in planes)
             {
                 //attempt to find intersection line
-                var line = this.IntersectLine(parent.Plane, item);
+                var line = this.IntersectLine(parent, item);
 
                 //testing if intersect point of intersection line and plane triangle boundaries 
                 //lays on bound
@@ -68,26 +57,32 @@ namespace BspTree.Construct
                 var line12 = new Line { Point = item.Points[1], Vector = Plane.CreateVector(item.Points[2], item.Points[1]) };
                 var point12 = this.IntersectPoint(line, line12);
 
-                //if intersection line lays in bounds then dividing plane into two by intersection line
+                //if intersection line lays in bounds then divide plane into two by intersection line
                 if (point01 != null && point01.IsBetween(item.Points[0], item.Points[1]))
                 {
-                    if (point02 != null && point02.IsBetween(item.Points[0], item.Points[2]))
+                    if (point02 != null && point02.IsBetween(item.Points[0], item.Points[2]) &&
+                        !point02.Equals(item.Points[0]) && !point02.Equals(item.Points[2]))
                     {
-                        
+                        if (Point.ScalarProduct(parent.NormVect, Plane.CreateVector(parent.Points[0], point01)) > 0)
+                        {
+                            leftPlanes.Add(Plane.CreatePlaneFrom(item, point01, point02, item.Points[0]));
+
+                            rightPlanes.Add(Plane.CreatePlaneFrom(item, point01, point02, item.Points[1]));
+                            rightPlanes.Add(Plane.CreatePlaneFrom(item, point01, point02, item.Points[2]));
+                        }
                     }
                 }
 
             }
+
+            return new Tree
+            {
+                Plane = splitter,
+                Left = this.CreateNode(splitter, leftPlanes),
+                Right = this.CreateNode(splitter, rightPlanes)
+            };
         }
-
-        /// <summary>
-        /// Creates right (empty) subtree for the passed parent
-        /// </summary>
-        private void CreateRight(Tree parent, List<Plane> planes)
-        {
-
-        }
-
+        
         private Point IntersectPoint(Line line1, Line line2)
         {
             //assume that lines are in form

@@ -62,6 +62,11 @@ namespace BspTree.Base
             return base.Equals(obj);
         }
 
+        public override int GetHashCode()
+        {
+            return (int)this.X * 100 + (int)this.Y * 100 + (int)this.Z * 100;
+        }
+
         public static Point VectorProduct(Point vec1, Point vec2)
         {
             return new Point
@@ -70,6 +75,11 @@ namespace BspTree.Base
                 Y = vec1.Z * vec2.X - vec1.X * vec2.Z,
                 Z = vec1.X * vec2.Y - vec1.Y * vec2.X
             };
+        }
+
+        public static double ScalarProduct(Point vec1, Point vec2)
+        {
+            return vec1.X * vec2.X + vec1.Y * vec2.Y + vec1.Z * vec2.Z;
         }
     }
 }

@@ -73,5 +73,19 @@ namespace BspTree.Base
                 Z = p2.Z - p1.Z
             };
         }
+
+        public static Plane CreatePlaneFrom(Plane plane, Point p1, Point p2, Point p3)
+        {
+            var planePoints = new List<Point>();
+            planePoints.Add(p1);
+            planePoints.Add(p2);
+            planePoints.Add(p3);
+
+            return new Plane
+            {
+                Points = planePoints.OfType<PointImport>().ToList(),
+                NormVect = plane.NormVect
+            };
+        }
     }
 }
