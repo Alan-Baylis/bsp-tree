@@ -57,6 +57,26 @@ namespace BspTree.Construct
                 //attempt to find intersection line
                 var line = this.IntersectLine(parent.Plane, item);
 
+                //testing if intersect point of intersection line and plane triangle boundaries 
+                //lays on bound
+                var line01 = new Line { Point = item.Points[0], Vector = Plane.CreateVector(item.Points[1], item.Points[0]) };
+                var point01 = this.IntersectPoint(line, line01);
+
+                var line02 = new Line { Point = item.Points[0], Vector = Plane.CreateVector(item.Points[2], item.Points[0]) };
+                var point02 = this.IntersectPoint(line, line02);
+
+                var line12 = new Line { Point = item.Points[1], Vector = Plane.CreateVector(item.Points[2], item.Points[1]) };
+                var point12 = this.IntersectPoint(line, line12);
+
+                //if intersection line lays in bounds then dividing plane into two by intersection line
+                if (point01 != null && point01.IsBetween(item.Points[0], item.Points[1]))
+                {
+                    if (point02 != null && point02.IsBetween(item.Points[0], item.Points[2]))
+                    {
+                        
+                    }
+                }
+
             }
         }
 
@@ -66,6 +86,76 @@ namespace BspTree.Construct
         private void CreateRight(Tree parent, List<Plane> planes)
         {
 
+        }
+
+        private Point IntersectPoint(Line line1, Line line2)
+        {
+            //assume that lines are in form
+            //|x = x0 + at
+            //|y = y0 + bt
+            //|z = z0 + ct
+            //choosing equation, where both constants are not 0
+            double? t = null;
+            if (line1.Point.X != 0 && line1.Vector.X != 0)
+            {
+                t = this.ResolveLineEquation(line1.Point.X, line2.Point.X, line1.Vector.X, line2.Vector.X);
+            }
+            else if (line1.Point.Y != 0 && line1.Vector.Y != 0)
+            {
+                t = this.ResolveLineEquation(line1.Point.Y, line2.Point.Y, line1.Vector.Y, line2.Vector.Y);
+            }
+            else if (line1.Point.Z != 0 && line1.Vector.Z != 0)
+            {
+                t = this.ResolveLineEquation(line1.Point.Z, line2.Point.Z, line1.Vector.Z, line2.Vector.Z);
+            }
+
+            //if there is no coefficient - it is not an error
+            if (t != null)
+            {
+                return new Point
+                {
+                    X = line1.Point.X + line1.Vector.X * (double)t,
+                    Y = line1.Point.Y + line1.Vector.Y * (double)t,
+                    Z = line1.Point.Z + line1.Vector.Z * (double)t
+                };
+            }
+            else //if (t == null)
+            {
+                if (line2.Point.X != 0 && line2.Vector.X != 0)
+                {
+                    t = this.ResolveLineEquation(line1.Point.X, line2.Point.X, line1.Vector.X, line2.Vector.X);
+                }
+                else if (line2.Point.Y != 0 && line2.Vector.Y != 0)
+                {
+                    t = this.ResolveLineEquation(line1.Point.Y, line2.Point.Y, line1.Vector.Y, line2.Vector.Y);
+                }
+
+                else if (line2.Point.Z != 0 && line2.Vector.Z != 0)
+                {
+                    t = this.ResolveLineEquation(line1.Point.Z, line2.Point.Z, line1.Vector.Z, line2.Vector.Z);
+                }
+
+                if (t != null)
+                {
+                    return new Point
+                    {
+                        X = line2.Point.X + line2.Vector.X * (double)t,
+                        Y = line2.Point.Y + line2.Vector.Y * (double)t,
+                        Z = line2.Point.Z + line2.Vector.Z * (double)t
+                    };
+                }
+            }
+
+
+            return null;
+        }
+
+        private double? ResolveLineEquation(double nullPoint1, double nullPoint2, double vecCoeff1, double vecCoeff2)
+        {
+            if (vecCoeff1 - vecCoeff2 == 0)
+                return null;
+
+            return (nullPoint2 - nullPoint1) / (vecCoeff1 - vecCoeff2);
         }
 
         private Line IntersectLine(Plane plane1, Plane plane2)

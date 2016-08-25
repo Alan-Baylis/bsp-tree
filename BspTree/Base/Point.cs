@@ -47,6 +47,21 @@ namespace BspTree.Base
             return result;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+
+            if (!(obj is Point))
+                return false;
+
+            var p = (Point)obj;
+            if (p.X == this.X && p.Y == this.Y && p.Z == this.Z)
+                return true;
+
+            return base.Equals(obj);
+        }
+
         public static Point VectorProduct(Point vec1, Point vec2)
         {
             return new Point
