@@ -49,7 +49,7 @@ namespace BspTree.Construct
             foreach (var item in planes)
             {
                 //attempt to find intersection line
-                var line = this.IntersectLine(parent, item);
+                var line = this.IntersectLine(splitter, item);
 
                 //testing if intersect point of intersection line and plane triangle boundaries 
                 //lays on bound
@@ -67,9 +67,9 @@ namespace BspTree.Construct
                 {
                     //checking if intersection point lays on vertex
                     //intersection point equals to item.Points[0]
-                    if (point01.Equals(point02))
+                    if (point01.Equals(point02) && !point12.Equals(item.Points[1]) && !point12.Equals(item.Points[2]))
                     {
-                        if (Point.ScalarProduct(parent.NormVect, Plane.CreateVector(parent.Points[0], item.Points[2])) > 0)
+                        if (Point.ScalarProduct(splitter.NormVect, Plane.CreateVector(splitter.Points[0], item.Points[2])) > 0)
                         {
                             rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[0], point12, item.Points[2]));
                             leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[0], point12, item.Points[1]));
@@ -84,9 +84,9 @@ namespace BspTree.Construct
                     }
 
                     //intersection point equals to item.Points[1]
-                    if (point01.Equals(point12))
+                    if (point01.Equals(point12) && !point02.Equals(item.Points[0]) && !point02.Equals(item.Points[2]))
                     {
-                        if (Point.ScalarProduct(parent.NormVect, Plane.CreateVector(parent.Points[0], item.Points[0])) > 0)
+                        if (Point.ScalarProduct(splitter.NormVect, Plane.CreateVector(splitter.Points[0], item.Points[0])) > 0)
                         {
                             rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[1], point02, item.Points[0]));
                             leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[1], point02, item.Points[2]));
@@ -101,9 +101,9 @@ namespace BspTree.Construct
                     }
 
                     //intersection point equals to item.Points[2]
-                    if (point02.Equals(point12))
+                    if (point02.Equals(point12) && !point01.Equals(item.Points[0]) && !point01.Equals(item.Points[1]))
                     {
-                        if (Point.ScalarProduct(parent.NormVect, Plane.CreateVector(parent.Points[0], item.Points[0])) > 0)
+                        if (Point.ScalarProduct(splitter.NormVect, Plane.CreateVector(splitter.Points[0], item.Points[0])) > 0)
                         {
                             rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[2], point01, item.Points[0]));
                             leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[2], point01, item.Points[1]));
@@ -120,7 +120,7 @@ namespace BspTree.Construct
                     //intersection point lays on bound and does not equal to vertex
                     if (point01.IsBetween(item.Points[0], item.Points[1]) && point02.IsBetween(item.Points[0], item.Points[2]))
                     {
-                        if (Point.ScalarProduct(parent.NormVect, Plane.CreateVector(parent.Points[0], item.Points[0])) > 0)
+                        if (Point.ScalarProduct(splitter.NormVect, Plane.CreateVector(splitter.Points[0], item.Points[0])) > 0)
                         {
                             rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[0], point01, point02));
                             leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[1], point01, point02));
@@ -138,7 +138,7 @@ namespace BspTree.Construct
 
                     if (point01.IsBetween(item.Points[0], item.Points[1]) && point12.IsBetween(item.Points[1], item.Points[2]))
                     {
-                        if (Point.ScalarProduct(parent.NormVect, Plane.CreateVector(parent.Points[0], item.Points[1])) > 0)
+                        if (Point.ScalarProduct(splitter.NormVect, Plane.CreateVector(splitter.Points[0], item.Points[1])) > 0)
                         {
                             rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[1], point01, point12));
                             leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[0], point01, point12));
@@ -156,7 +156,7 @@ namespace BspTree.Construct
 
                     if (point02.IsBetween(item.Points[0], item.Points[2]) && point12.IsBetween(item.Points[1], item.Points[2]))
                     {
-                        if (Point.ScalarProduct(parent.NormVect, Plane.CreateVector(parent.Points[0], item.Points[2])) > 0)
+                        if (Point.ScalarProduct(splitter.NormVect, Plane.CreateVector(splitter.Points[0], item.Points[2])) > 0)
                         {
                             rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[2], point02, point12));
                             leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[0], point02, point12));
@@ -174,7 +174,7 @@ namespace BspTree.Construct
 
                     //if every intersection point does not lays in bounds of triangle, then analyzing location if current plane and
                     //place it in the correct array
-                    if (Point.ScalarProduct(parent.NormVect, Plane.CreateVector(parent.Points[0], item.Points[0])) > 0)
+                    if (Point.ScalarProduct(splitter.NormVect, Plane.CreateVector(splitter.Points[0], item.Points[0])) > 0)
                     {
                         rightPlanes.Add(item);
                     }
@@ -186,7 +186,7 @@ namespace BspTree.Construct
                 else
                 {
                     //if there is no intersection points - analyzing location of current plane and place it in the correct array
-                    if (Point.ScalarProduct(parent.NormVect, Plane.CreateVector(parent.Points[0], item.Points[0])) > 0)
+                    if (Point.ScalarProduct(splitter.NormVect, Plane.CreateVector(splitter.Points[0], item.Points[0])) > 0)
                     {
                         rightPlanes.Add(item);
                     }
@@ -207,6 +207,11 @@ namespace BspTree.Construct
 
         private Point IntersectPoint(Line line1, Line line2)
         {
+            if (line1 == null || line2 == null)
+            {
+                return null;
+            }
+
             //assume that lines are in form
             //|x = x0 + at
             //|y = y0 + bt
@@ -231,9 +236,9 @@ namespace BspTree.Construct
             {
                 return new Point
                 {
-                    X = line1.Point.X + line1.Vector.X * (double)t,
-                    Y = line1.Point.Y + line1.Vector.Y * (double)t,
-                    Z = line1.Point.Z + line1.Vector.Z * (double)t
+                    X = Math.Round(line1.Point.X + line1.Vector.X * (double)t, 2),
+                    Y = Math.Round(line1.Point.Y + line1.Vector.Y * (double)t, 2),
+                    Z = Math.Round(line1.Point.Z + line1.Vector.Z * (double)t, 2)
                 };
             }
             else //if (t == null)
@@ -256,9 +261,9 @@ namespace BspTree.Construct
                 {
                     return new Point
                     {
-                        X = line2.Point.X + line2.Vector.X * (double)t,
-                        Y = line2.Point.Y + line2.Vector.Y * (double)t,
-                        Z = line2.Point.Z + line2.Vector.Z * (double)t
+                        X = Math.Round(line2.Point.X + line2.Vector.X * (double)t, 2),
+                        Y = Math.Round(line2.Point.Y + line2.Vector.Y * (double)t, 2),
+                        Z = Math.Round(line2.Point.Z + line2.Vector.Z * (double)t, 2)
                     };
                 }
             }
@@ -272,7 +277,7 @@ namespace BspTree.Construct
             if (vecCoeff1 - vecCoeff2 == 0)
                 return null;
 
-            return (nullPoint2 - nullPoint1) / (vecCoeff1 - vecCoeff2);
+            return Math.Round((nullPoint2 - nullPoint1) / (vecCoeff1 - vecCoeff2), 2);
         }
 
         private Line IntersectLine(Plane plane1, Plane plane2)
@@ -300,8 +305,8 @@ namespace BspTree.Construct
                         Point = new Point
                         {
                             X = 0,
-                            Y = y,
-                            Z = z
+                            Y = Math.Round(y, 2),
+                            Z = Math.Round(z, 2)
                         },
                         Vector = vec
                     };
@@ -320,9 +325,9 @@ namespace BspTree.Construct
                     {
                         Point = new Point
                         {
-                            X = x,
+                            X = Math.Round(x, 2),
                             Y = 0,
-                            Z = z
+                            Z = Math.Round(z, 2)
                         },
                         Vector = vec
                     };
@@ -342,8 +347,8 @@ namespace BspTree.Construct
                         Point = new Point
                         {
                             X = 0,
-                            Y = y,
-                            Z = z
+                            Y = Math.Round(y, 2),
+                            Z = Math.Round(z, 2)
                         },
                         Vector = vec
                     };
@@ -364,7 +369,10 @@ namespace BspTree.Construct
             {
                 //creating normal
                 item.NormVect = this.GetNormal(item);
+            }
 
+            foreach (var item in this._planes)
+            {
                 //verifying that normal is outward
                 this.VerifyNormal(item);
             }

@@ -67,13 +67,26 @@ namespace BspTree.Base
             return (int)this.X * 100 + (int)this.Y * 100 + (int)this.Z * 100;
         }
 
+        public override string ToString()
+        {
+            return $"({this.X} ; {this.Y} ; {this.Z})";
+        }
+
         public static Point VectorProduct(Point vec1, Point vec2)
         {
+            var x = vec1.Y * vec2.Z - vec1.Z * vec2.Y;
+            var y = vec1.Z * vec2.X - vec1.X * vec2.Z;
+            var z = vec1.X * vec2.Y - vec1.Y * vec2.X;
+
+            var max = new[] { Math.Abs(x), Math.Abs(y), Math.Abs(z) }.Max();
+            if (max == 0)
+                throw new ArgumentException();
+
             return new Point
             {
-                X = vec1.Y * vec2.Z - vec1.Z * vec2.Y,
-                Y = vec1.Z * vec2.X - vec1.X * vec2.Z,
-                Z = vec1.X * vec2.Y - vec1.Y * vec2.X
+                X = x / max,
+                Y = y / max,
+                Z = z / max
             };
         }
 
