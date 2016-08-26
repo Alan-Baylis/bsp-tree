@@ -65,6 +65,7 @@
     <Compile Include="Base\Plane.cs" />
     <Compile Include="Import\PointImport.cs" />
     <Compile Include="Base\Point.cs" />
+    <Compile Include="LocalMath.cs" />
     <Compile Include="Tree.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

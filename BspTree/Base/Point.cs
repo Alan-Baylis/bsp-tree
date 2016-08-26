@@ -71,28 +71,5 @@ namespace BspTree.Base
         {
             return $"({this.X} ; {this.Y} ; {this.Z})";
         }
-
-        public static Point VectorProduct(Point vec1, Point vec2)
-        {
-            var x = vec1.Y * vec2.Z - vec1.Z * vec2.Y;
-            var y = vec1.Z * vec2.X - vec1.X * vec2.Z;
-            var z = vec1.X * vec2.Y - vec1.Y * vec2.X;
-
-            var max = new[] { Math.Abs(x), Math.Abs(y), Math.Abs(z) }.Max();
-            if (max == 0)
-                throw new ArgumentException();
-
-            return new Point
-            {
-                X = x / max,
-                Y = y / max,
-                Z = z / max
-            };
-        }
-
-        public static double ScalarProduct(Point vec1, Point vec2)
-        {
-            return vec1.X * vec2.X + vec1.Y * vec2.Y + vec1.Z * vec2.Z;
-        }
     }
 }

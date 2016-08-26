@@ -53,38 +53,14 @@ namespace BspTree.Base
         {
             var random = new Random(DateTime.Now.Millisecond);
             var multiplier = 1 / random.Next(2, 100);
-            var vec1 = CreateVector(this.Points[0], this.Points[1]);
-            var vec2 = CreateVector(this.Points[0], this.Points[2]);
+            var vec1 = LocalMath.CreateVector(this.Points[0], this.Points[1]);
+            var vec2 = LocalMath.CreateVector(this.Points[0], this.Points[2]);
 
             return new Point
             {
                 X = this.Points[0].X + multiplier * vec1.X + multiplier * vec2.X,
                 Y = this.Points[0].Y + multiplier * vec1.Y + multiplier * vec2.Y,
                 Z = this.Points[0].Z + multiplier * vec1.Z + multiplier * vec2.Z
-            };
-        }
-
-        public static Point CreateVector(Point p1, Point p2)
-        {
-            return new Point
-            {
-                X = p2.X - p1.X,
-                Y = p2.Y - p1.Y,
-                Z = p2.Z - p1.Z
-            };
-        }
-
-        public static Plane CreatePlaneFrom(Plane plane, Point p1, Point p2, Point p3)
-        {
-            var planePoints = new List<PointImport>();
-            planePoints.Add(new PointImport { X = p1.X, Y = p1.Y, Z = p1.Z });
-            planePoints.Add(new PointImport { X = p2.X, Y = p2.Y, Z = p2.Z });
-            planePoints.Add(new PointImport { X = p3.X, Y = p3.Y, Z = p3.Z });
-
-            return new Plane
-            {
-                Points = planePoints.ToList(),
-                NormVect = plane.NormVect
             };
         }
     }
