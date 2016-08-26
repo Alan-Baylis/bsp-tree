@@ -35,6 +35,11 @@ namespace BspTree.Construct
 
         private Tree CreateNode(Plane parent, List<Plane> planes)
         {
+            if (!planes.Any())
+            {
+                return null;
+            }
+
             var splitter = planes.First();
             planes.Remove(splitter);
 
@@ -57,22 +62,139 @@ namespace BspTree.Construct
                 var line12 = new Line { Point = item.Points[1], Vector = Plane.CreateVector(item.Points[2], item.Points[1]) };
                 var point12 = this.IntersectPoint(line, line12);
 
-                //if intersection line lays in bounds then divide plane into two by intersection line
-                if (point01 != null && point01.IsBetween(item.Points[0], item.Points[1]))
+                //at first check that intersection points exist and lays in required triangle
+                if (point01 != null && point02 != null && point12 != null)
                 {
-                    if (point02 != null && point02.IsBetween(item.Points[0], item.Points[2]) &&
-                        !point02.Equals(item.Points[0]) && !point02.Equals(item.Points[2]))
+                    //checking if intersection point lays on vertex
+                    //intersection point equals to item.Points[0]
+                    if (point01.Equals(point02))
                     {
-                        if (Point.ScalarProduct(parent.NormVect, Plane.CreateVector(parent.Points[0], point01)) > 0)
+                        if (Point.ScalarProduct(parent.NormVect, Plane.CreateVector(parent.Points[0], item.Points[2])) > 0)
                         {
-                            leftPlanes.Add(Plane.CreatePlaneFrom(item, point01, point02, item.Points[0]));
-
-                            rightPlanes.Add(Plane.CreatePlaneFrom(item, point01, point02, item.Points[1]));
-                            rightPlanes.Add(Plane.CreatePlaneFrom(item, point01, point02, item.Points[2]));
+                            rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[0], point12, item.Points[2]));
+                            leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[0], point12, item.Points[1]));
                         }
+                        else
+                        {
+                            leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[0], point12, item.Points[2]));
+                            rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[0], point12, item.Points[1]));
+                        }
+
+                        continue;
+                    }
+
+                    //intersection point equals to item.Points[1]
+                    if (point01.Equals(point12))
+                    {
+                        if (Point.ScalarProduct(parent.NormVect, Plane.CreateVector(parent.Points[0], item.Points[0])) > 0)
+                        {
+                            rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[1], point02, item.Points[0]));
+                            leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[1], point02, item.Points[2]));
+                        }
+                        else
+                        {
+                            rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[1], point02, item.Points[0]));
+                            leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[1], point02, item.Points[2]));
+                        }
+
+                        continue;
+                    }
+
+                    //intersection point equals to item.Points[2]
+                    if (point02.Equals(point12))
+                    {
+                        if (Point.ScalarProduct(parent.NormVect, Plane.CreateVector(parent.Points[0], item.Points[0])) > 0)
+                        {
+                            rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[2], point01, item.Points[0]));
+                            leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[2], point01, item.Points[1]));
+                        }
+                        else
+                        {
+                            leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[2], point01, item.Points[0]));
+                            rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[2], point01, item.Points[1]));
+                        }
+
+                        continue;
+                    }
+
+                    //intersection point lays on bound and does not equal to vertex
+                    if (point01.IsBetween(item.Points[0], item.Points[1]) && point02.IsBetween(item.Points[0], item.Points[2]))
+                    {
+                        if (Point.ScalarProduct(parent.NormVect, Plane.CreateVector(parent.Points[0], item.Points[0])) > 0)
+                        {
+                            rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[0], point01, point02));
+                            leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[1], point01, point02));
+                            leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[2], point01, point02));
+                        }
+                        else
+                        {
+                            leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[0], point01, point02));
+                            rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[1], point01, point02));
+                            rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[2], point01, point02));
+                        }
+
+                        continue;
+                    }
+
+                    if (point01.IsBetween(item.Points[0], item.Points[1]) && point12.IsBetween(item.Points[1], item.Points[2]))
+                    {
+                        if (Point.ScalarProduct(parent.NormVect, Plane.CreateVector(parent.Points[0], item.Points[1])) > 0)
+                        {
+                            rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[1], point01, point12));
+                            leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[0], point01, point12));
+                            leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[2], point01, point12));
+                        }
+                        else
+                        {
+                            leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[1], point01, point12));
+                            rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[0], point01, point12));
+                            rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[2], point01, point12));
+                        }
+
+                        continue;
+                    }
+
+                    if (point02.IsBetween(item.Points[0], item.Points[2]) && point12.IsBetween(item.Points[1], item.Points[2]))
+                    {
+                        if (Point.ScalarProduct(parent.NormVect, Plane.CreateVector(parent.Points[0], item.Points[2])) > 0)
+                        {
+                            rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[2], point02, point12));
+                            leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[0], point02, point12));
+                            leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[1], point02, point12));
+                        }
+                        else
+                        {
+                            leftPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[2], point02, point12));
+                            rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[0], point02, point12));
+                            rightPlanes.Add(Plane.CreatePlaneFrom(item, item.Points[1], point02, point12));
+                        }
+
+                        continue;
+                    }
+
+                    //if every intersection point does not lays in bounds of triangle, then analyzing location if current plane and
+                    //place it in the correct array
+                    if (Point.ScalarProduct(parent.NormVect, Plane.CreateVector(parent.Points[0], item.Points[0])) > 0)
+                    {
+                        rightPlanes.Add(item);
+                    }
+                    else
+                    {
+                        leftPlanes.Add(item);
                     }
                 }
-
+                else
+                {
+                    //if there is no intersection points - analyzing location of current plane and place it in the correct array
+                    if (Point.ScalarProduct(parent.NormVect, Plane.CreateVector(parent.Points[0], item.Points[0])) > 0)
+                    {
+                        rightPlanes.Add(item);
+                    }
+                    else
+                    {
+                        leftPlanes.Add(item);
+                    }
+                }
             }
 
             return new Tree
@@ -82,7 +204,7 @@ namespace BspTree.Construct
                 Right = this.CreateNode(splitter, rightPlanes)
             };
         }
-        
+
         private Point IntersectPoint(Line line1, Line line2)
         {
             //assume that lines are in form
