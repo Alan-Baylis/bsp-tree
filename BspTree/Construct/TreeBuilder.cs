@@ -23,6 +23,11 @@ namespace BspTree.Construct
                 NormVect = x.NormVect != null ? new Point { X = x.NormVect.X, Y = x.NormVect.Y, Z = x.NormVect.Z } : null
             }).ToList();
         }
+
+        public TreeBuilder(List<Plane> planes)
+        {
+            this._planes = planes;
+        }
         #endregion
 
         #region Methods

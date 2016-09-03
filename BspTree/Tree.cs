@@ -126,5 +126,25 @@ namespace BspTree
                 this.Right.Scale(coeff);
             }
         }
+
+        public List<Plane> GetPlanes()
+        {
+            var result = new List<Plane>();
+
+            GetPlane(this, result);
+
+            return result;
+        }
+
+        private void GetPlane(Tree node, List<Plane> result)
+        {
+            if (node == null)
+                return;
+
+            result.Add(node.Plane);
+
+            GetPlane(node.Left, result);
+            GetPlane(node.Right, result);
+        }
     }
 }

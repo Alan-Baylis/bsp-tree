@@ -90,18 +90,25 @@ namespace BspTree
             if (tree == null)
                 return;
 
-            this.Draw(tree.Left);
+            //as we cannot be inside of scene
+            //simply check from what side we are currently
+            var lookVect = new Base.Point { X = 0, Y = 0, Z = 1 };
+            if (LocalMath.ScalarProduct(tree.Plane.NormVect, lookVect) > 0)
+            {
+                this.Draw(tree.Left);
 
-            var p = new Polygon();
-            p.Points.Add(new System.Windows.Point(tree.Plane.Points[0].X, tree.Plane.Points[0].Y));
-            p.Points.Add(new System.Windows.Point(tree.Plane.Points[1].X, tree.Plane.Points[1].Y));
-            p.Points.Add(new System.Windows.Point(tree.Plane.Points[2].X, tree.Plane.Points[2].Y));
+                canvas.Children.Add(tree.Plane.GetPolygon());
 
-            p.Stroke = Brushes.Black;
-            p.Fill = Brushes.Red;
-            canvas.Children.Add(p);
+                this.Draw(tree.Right);
+            }
+            else
+            {
+                this.Draw(tree.Right);
 
-            this.Draw(tree.Right);
+                canvas.Children.Add(tree.Plane.GetPolygon());
+
+                this.Draw(tree.Left);
+            }
         }
 
         private void canvas_MouseMove(object sender, MouseEventArgs e)
@@ -117,8 +124,11 @@ namespace BspTree
 
                 if (move)
                 {
-                    this._trees.First().MoveAlong(WorkAxis.Ox, position.X - this._lastTransitionPoint.Value.X);
-                    this._trees.First().MoveAlong(WorkAxis.Oy, position.Y - this._lastTransitionPoint.Value.Y);
+                    foreach (var item in this._trees)
+                    {
+                        item.MoveAlong(WorkAxis.Ox, position.X - this._lastTransitionPoint.Value.X);
+                        item.MoveAlong(WorkAxis.Oy, position.Y - this._lastTransitionPoint.Value.Y);
+                    }
                 }
                 else
                 {
@@ -126,8 +136,11 @@ namespace BspTree
                     var length = this.canvas.ActualWidth;
                     var height = this.canvas.ActualHeight;
 
-                    this._trees.First().Rotate(WorkAxis.Oy, 180 * (position.X - this._lastTransitionPoint.Value.X) / length);
-                    this._trees.First().Rotate(WorkAxis.Ox, 180 * (position.Y - this._lastTransitionPoint.Value.Y) / height);
+                    foreach (var item in this._trees)
+                    {
+                        item.Rotate(WorkAxis.Oy, 180 * (position.X - this._lastTransitionPoint.Value.X) / length);
+                        item.Rotate(WorkAxis.Ox, 180 * (position.Y - this._lastTransitionPoint.Value.Y) / height);
+                    }
                 }
 
                 this._lastTransitionPoint = position;
@@ -144,14 +157,21 @@ namespace BspTree
             //check if transition point is inside the figure
             //if so - move the figure
             //else rotate the scene
-            this.move = this._trees.First().Contains(this._transitionPoint.Value);
+            this.move = false;
+            foreach (var item in this._trees)
+            {
+                this.move &= item.Contains(this._transitionPoint.Value);
+            }
         }
 
         private void canvas_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             var coeff = e.Delta > 0 ? 1.5 : 1.0/1.5;
 
-            this._trees.First().Scale(coeff);
+            foreach (var item in this._trees)
+            {
+                item.Scale(coeff);
+            }
 
             this.Draw();
         }
