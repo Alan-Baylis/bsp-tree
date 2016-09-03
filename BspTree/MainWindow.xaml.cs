@@ -110,30 +110,27 @@ namespace BspTree
             {
                 var position = e.GetPosition(this.canvas);
 
+                if (this._lastTransitionPoint == null)
+                {
+                    this._lastTransitionPoint = this._transitionPoint;
+                }
+
                 if (move)
                 {
-                    if (this._lastTransitionPoint == null)
-                    {
-                        this._lastTransitionPoint = this._transitionPoint;
-                    }
-
                     this._trees.First().MoveAlong(WorkAxis.Ox, position.X - this._lastTransitionPoint.Value.X);
                     this._trees.First().MoveAlong(WorkAxis.Oy, position.Y - this._lastTransitionPoint.Value.Y);
-
-                    this._lastTransitionPoint = position;
-
                 }
                 else
                 {
-                    this._lastTransitionPoint = null;
                     //moving from one grid side to other wiil cause single rotation
                     var length = this.canvas.ActualWidth;
                     var height = this.canvas.ActualHeight;
 
-                    this._trees.First().Rotate(WorkAxis.Oy, 360 * (position.X - this._transitionPoint.Value.X) / length);
-                    this._trees.First().Rotate(WorkAxis.Ox, 360 * (position.Y - this._transitionPoint.Value.Y) / height);
+                    this._trees.First().Rotate(WorkAxis.Oy, 180 * (position.X - this._lastTransitionPoint.Value.X) / length);
+                    this._trees.First().Rotate(WorkAxis.Ox, 180 * (position.Y - this._lastTransitionPoint.Value.Y) / height);
                 }
 
+                this._lastTransitionPoint = position;
                 this.Draw();
 
             }
