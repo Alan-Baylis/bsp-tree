@@ -15,14 +15,14 @@ namespace BspTree
         /// </summary>
         public static Plane CreatePlaneFrom(Plane plane, Point p1, Point p2, Point p3)
         {
-            var planePoints = new List<PointImport>();
-            planePoints.Add(new PointImport { X = p1.X, Y = p1.Y, Z = p1.Z });
-            planePoints.Add(new PointImport { X = p2.X, Y = p2.Y, Z = p2.Z });
-            planePoints.Add(new PointImport { X = p3.X, Y = p3.Y, Z = p3.Z });
+            var planePoints = new List<Point>();
+            planePoints.Add(p1);
+            planePoints.Add(p2);
+            planePoints.Add(p3);
 
             return new Plane
             {
-                Points = planePoints.ToList(),
+                Points = planePoints,
                 NormVect = plane.NormVect
             };
         }

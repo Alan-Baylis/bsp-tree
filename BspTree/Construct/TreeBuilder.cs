@@ -15,9 +15,13 @@ namespace BspTree.Construct
         #endregion
 
         #region Constructors
-        public TreeBuilder(List<Plane> planes)
+        public TreeBuilder(List<PlaneImport> planes)
         {
-            this._planes = planes;
+            this._planes = planes.Select(x => new Plane
+            {
+                Points = x.Points.Select(y => new Point { X =y.X, Y = y.Y, Z = y.Z }).ToList(),
+                NormVect = x.NormVect != null ? new Point { X = x.NormVect.X, Y = x.NormVect.Y, Z = x.NormVect.Z } : null
+            }).ToList();
         }
         #endregion
 

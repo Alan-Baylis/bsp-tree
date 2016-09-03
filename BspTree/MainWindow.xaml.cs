@@ -24,6 +24,9 @@ namespace BspTree
     public partial class MainWindow : Window
     {
         private List<Tree> _trees;
+        private System.Windows.Point? _transitionPoint;
+        private System.Windows.Point? _lastTransitionPoint;
+        private bool move = false;
         public MainWindow()
         {
             InitializeComponent();
@@ -44,11 +47,11 @@ namespace BspTree
 
             foreach (var item in polyhedra)
             {
-                var polyhedronPlanes = new List<Plane>();
+                var polyhedronPlanes = new List<PlaneImport>();
 
                 foreach (var plane in item.planes)
                 {
-                    polyhedronPlanes.Add(new Plane
+                    polyhedronPlanes.Add(new PlaneImport
                     {
                         Points = item.points.Where(x => plane.Contains(x.Label)).ToList()
                     });
@@ -63,11 +66,22 @@ namespace BspTree
 
         private void Draw()
         {
-            this.grid.Children.Clear();
+            this.canvas.Children.Clear();
 
             foreach (var item in this._trees)
             {
                 this.Draw(item);
+            }
+
+            if (this._transitionPoint != null)
+            {
+                var el = new Ellipse();
+                el.Height = 5;
+                el.Width = 5;
+                el.Fill = Brushes.Black;
+                el.Margin = new Thickness(this._transitionPoint.Value.X, this._transitionPoint.Value.Y, 0, 0);
+
+                this.canvas.Children.Add(el);
             }
         }
 
@@ -85,9 +99,70 @@ namespace BspTree
 
             p.Stroke = Brushes.Black;
             p.Fill = Brushes.Red;
-            grid.Children.Add(p);
+            canvas.Children.Add(p);
 
             this.Draw(tree.Right);
+        }
+
+        private void canvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                var position = e.GetPosition(this.canvas);
+
+                if (move)
+                {
+                    if (this._lastTransitionPoint == null)
+                    {
+                        this._lastTransitionPoint = this._transitionPoint;
+                    }
+
+                    this._trees.First().MoveAlong(WorkAxis.Ox, position.X - this._lastTransitionPoint.Value.X);
+                    this._trees.First().MoveAlong(WorkAxis.Oy, position.Y - this._lastTransitionPoint.Value.Y);
+
+                    this._lastTransitionPoint = position;
+
+                }
+                else
+                {
+                    this._lastTransitionPoint = null;
+                    //moving from one grid side to other wiil cause single rotation
+                    var length = this.canvas.ActualWidth;
+                    var height = this.canvas.ActualHeight;
+
+                    this._trees.First().Rotate(WorkAxis.Oy, 360 * (position.X - this._transitionPoint.Value.X) / length);
+                    this._trees.First().Rotate(WorkAxis.Ox, 360 * (position.Y - this._transitionPoint.Value.Y) / height);
+                }
+
+                this.Draw();
+
+            }
+        }
+
+        private void canvas_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            this._lastTransitionPoint = null;
+            this._transitionPoint = e.GetPosition(this.canvas);
+
+            //check if transition point is inside the figure
+            //if so - move the figure
+            //else rotate the scene
+            this.move = this._trees.First().Contains(this._transitionPoint.Value);
+        }
+
+        private void canvas_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            var coeff = e.Delta > 0 ? 1.5 : 1.0/1.5;
+
+            this._trees.First().Scale(coeff);
+
+            this.Draw();
+        }
+
+        private void canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            this._transitionPoint = null;
+            this.Draw();
         }
     }
 }

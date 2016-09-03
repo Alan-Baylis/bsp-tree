@@ -9,7 +9,7 @@ namespace BspTree.Base
 {
     public class Plane
     {
-        public List<PointImport> Points { get; set; }
+        public List<Point> Points { get; set; }
 
         public Point NormVect { get; set; }
         public double D
@@ -19,33 +19,6 @@ namespace BspTree.Base
                 return -this.NormVect.X * this.Points[0].X
                     - this.NormVect.Y * this.Points[0].Y
                     - this.NormVect.Z * this.Points[0].Z;
-            }
-        }
-
-        public bool IsParallelOxy
-        {
-            get
-            {
-                var z = this.Points.First().Z;
-                return this.Points.TrueForAll(point => point.Z == z);
-            }
-        }
-
-        public bool IsParallelOxz
-        {
-            get
-            {
-                var y = this.Points.First().Y;
-                return this.Points.TrueForAll(point => point.Y == y);
-            }
-        }
-
-        public bool IsParallelOyz
-        {
-            get
-            {
-                var x = this.Points.First().X;
-                return this.Points.TrueForAll(point => point.X == x);
             }
         }
 

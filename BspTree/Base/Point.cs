@@ -41,8 +41,54 @@ namespace BspTree.Base
 
             if (p1.Z > p2.Z)
             {
-
+                result &= p2.Z <= this.Z && p1.Z >= this.Z;
             }
+            else
+            {
+                result &= p1.Z <= this.Z && p2.Z >= this.Z;
+            }
+
+            return result;
+        }
+
+        public bool IsInBounds(params Point[] points)
+        {
+            //if there is no bounds, then return true
+            if (points == null)
+                return true;
+
+            if (!points.Any())
+                return true;
+
+            var result = true;
+
+            var p1 = points[0];
+            if (this.X >= p1.X)
+            {
+                result &= points.Any(x => this.X <= x.X);
+            }
+            else
+            {
+                result &= points.Any(x => this.X >= x.X);
+            }
+
+            if (this.Y >= p1.Y)
+            {
+                result &= points.Any(x => this.Y <= x.Y);
+            }
+            else
+            {
+                result &= points.Any(x => this.Y >= x.Y);
+            }
+
+            //if (this.Z >= p1.Z)
+            //{
+            //    result &= points.Any(x => this.Z <= x.Z);
+            //}
+            //else
+            //{
+            //    result &= points.Any(x => this.Z >= x.Z);
+            //}
 
             return result;
         }
