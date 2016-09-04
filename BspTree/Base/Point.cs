@@ -51,8 +51,9 @@ namespace BspTree.Base
             return result;
         }
 
-        public bool IsInBounds(params Point[] points)
+        public bool IsInTriangle(params Point[] points)
         {
+            #region Validation
             //if there is no bounds, then return true
             if (points == null)
                 return true;
@@ -60,37 +61,61 @@ namespace BspTree.Base
             if (!points.Any())
                 return true;
 
-            var result = true;
-
-            var p1 = points[0];
-            if (this.X >= p1.X)
+            if (points.Length != 3)
             {
-                result &= points.Any(x => this.X <= x.X);
+                throw new ArgumentException("For this method using you should pass triangle");
             }
-            else
+            #endregion
+            //using barycentric coordinates for this
+            //p = p0 + (p1 - p0)*s + (p2 - p0)*t
+            //true if 0<=s<=1, 0<=t<=1, s + 1 <= 1
+            double s = double.MinValue;
+            double t = double.MinValue;
+
+            if (points[1].X - points[0].X != 0)
             {
-                result &= points.Any(x => this.X >= x.X);
+                var den1 = (points[0].X - points[2].X) / (points[1].X - points[0].X);
+                if (den1 + (points[2].Y - points[0].Y)*(points[1].Y - points[0].Y) != 0)
+                {
+                    t = (this.Y - points[0].Y + (points[1].Y - points[0].Y * (this.X - points[0].X) / (points[1].X - points[0].X))) / (den1 + (points[2].Y - points[0].Y) * (points[1].Y - points[0].Y));
+                }
+                else //will hope that everything will be ok with Z
+                {
+                    t = (this.Z - points[0].Z + (points[1].Z - points[0].Z * (this.X - points[0].X) / (points[1].X - points[0].X))) / (den1 + (points[2].Z - points[0].Z) * (points[1].Z - points[0].Z));
+                }
+
+                s = (this.X - points[0].X - (points[2].X - points[0].X) * t) / (points[1].X - points[0].X);
+            }
+            else if (points[1].Y - points[0].Y != 0)
+            {
+                var den1 = (points[0].Y - points[2].Y) / (points[1].Y - points[0].Y);
+                if (den1 + (points[2].X - points[0].X)* (points[1].X - points[0].X) != 0)
+                {
+                    t = (this.X - points[0].X + (points[1].X - points[0].X * (this.Y - points[0].Y) / (points[1].Y - points[0].Y))) / (den1 + (points[2].X - points[0].X) * (points[1].X - points[0].X));
+                }
+                else //will hope that everything will be ok with Z
+                {
+                    t = (this.Z - points[0].Z + (points[1].Z - points[0].Z * (this.Y - points[0].Y) / (points[1].Y - points[0].Y))) / (den1 + (points[2].Z - points[0].Z) * (points[1].Z - points[0].Z));
+                }
+
+                s = (this.Y - points[0].Y - (points[2].Y - points[0].Y) * t) / (points[1].Y - points[0].Y);
+            }
+            else if (points[1].Z - points[0].Z != 0)
+            {
+                var den1 = (points[0].Z - points[2].Z) / (points[1].Z - points[0].Z);
+                if (den1 + (points[2].X - points[0].X) * (points[1].X - points[0].X) != 0)
+                {
+                    t = (this.X - points[0].X + (points[1].X - points[0].X * (this.Z - points[0].Z) / (points[1].Z - points[0].Z))) / (den1 + (points[2].X - points[0].X) * (points[1].X - points[0].X));
+                }
+                else //will hope that everything will be ok with y
+                {
+                    t = (this.Y - points[0].Y + (points[1].Y - points[0].Y * (this.Z - points[0].Z) / (points[1].Z - points[0].Z))) / (den1 + (points[2].Y - points[0].Y) * (points[1].Y - points[0].Y));
+                }
+
+                s = (this.Z - points[0].Z - (points[2].Z - points[0].Z) * t) / (points[1].Z - points[0].Z);
             }
 
-            if (this.Y >= p1.Y)
-            {
-                result &= points.Any(x => this.Y <= x.Y);
-            }
-            else
-            {
-                result &= points.Any(x => this.Y >= x.Y);
-            }
-
-            //if (this.Z >= p1.Z)
-            //{
-            //    result &= points.Any(x => this.Z <= x.Z);
-            //}
-            //else
-            //{
-            //    result &= points.Any(x => this.Z >= x.Z);
-            //}
-
-            return result;
+            return s >= 0 && s <= 1 && t >= 0 && t <= 1 && s + t <= 1;
         }
 
         public override bool Equals(object obj)

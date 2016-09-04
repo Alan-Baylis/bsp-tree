@@ -28,7 +28,7 @@ namespace BspTree
 
             if (Math.Round(result, 2) == 0)
             {
-                return p.IsInBounds(this.Plane.Points.ToArray());
+                return p.IsInTriangle(this.Plane.Points.ToArray());
             }
 
             var contains = false;

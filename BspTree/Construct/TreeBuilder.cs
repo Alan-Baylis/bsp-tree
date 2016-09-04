@@ -423,10 +423,7 @@ namespace BspTree.Construct
             var result = 0;
             foreach (var item in this._planes)
             {
-                if (item.NormVect.X * p.X +
-                    item.NormVect.Y * p.Y +
-                    item.NormVect.Z * p.Z +
-                    item.D != 0)
+                if (!item.NormVect.Equals(normal))
                 {
                     //attempt to find intersection point
                     //taking line equation as 
@@ -440,7 +437,7 @@ namespace BspTree.Construct
                     {
                         var t = -(item.NormVect.X * p.X + item.NormVect.Y * p.Y + item.NormVect.Z * p.Z + item.D) / den;
                         //checking that intersection point is in correct half-space
-                        if (t > 0)
+                        if (t >= 0)
                         {
                             var intersectPoint = new Point
                             {
@@ -450,8 +447,7 @@ namespace BspTree.Construct
                             };
 
                             //check that intersection point lays in required polygon
-                            if (intersectPoint.IsBetween(item.Points[0], item.Points[1])
-                                && intersectPoint.IsBetween(item.Points[0], item.Points[2]))
+                            if (intersectPoint.IsInTriangle(item.Points.ToArray()))
                             {
                                 result++;
                             }

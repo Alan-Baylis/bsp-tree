@@ -160,7 +160,7 @@ namespace BspTree
             this.move = false;
             foreach (var item in this._trees)
             {
-                this.move &= item.Contains(this._transitionPoint.Value);
+                this.move |= item.Contains(this._transitionPoint.Value);
             }
         }
 
