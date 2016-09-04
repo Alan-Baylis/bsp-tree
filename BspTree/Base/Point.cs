@@ -68,54 +68,57 @@ namespace BspTree.Base
             #endregion
             //using barycentric coordinates for this
             //p = p0 + (p1 - p0)*s + (p2 - p0)*t
-            //true if 0<=s<=1, 0<=t<=1, s + 1 <= 1
+            //a == p1 - p0, b == p2 - p0, c = p - p0
+            //с = a*s + b*t
+            //true if 0<=s<=1, 0<=t<=1, s + t <= 1
             double s = double.MinValue;
             double t = double.MinValue;
 
-            if (points[1].X - points[0].X != 0)
+            var a = LocalMath.CreateVector(points[0], points[1]);
+            var b = LocalMath.CreateVector(points[0], points[2]);
+            var c = LocalMath.CreateVector(points[0], this);
+
+            if (a.X != 0)
             {
-                var den1 = (points[0].X - points[2].X) / (points[1].X - points[0].X);
-                if (den1 + (points[2].Y - points[0].Y)*(points[1].Y - points[0].Y) != 0)
+                if (b.Y - (b.X/a.X) != 0)
                 {
-                    t = (this.Y - points[0].Y + (points[1].Y - points[0].Y * (this.X - points[0].X) / (points[1].X - points[0].X))) / (den1 + (points[2].Y - points[0].Y) * (points[1].Y - points[0].Y));
+                    t = (c.Y - ((a.Y * c.X) / a.X)) / (b.Y - b.X / a.X);
                 }
-                else //will hope that everything will be ok with Z
+                else if (b.Z - (b.X/a.X) != 0)
                 {
-                    t = (this.Z - points[0].Z + (points[1].Z - points[0].Z * (this.X - points[0].X) / (points[1].X - points[0].X))) / (den1 + (points[2].Z - points[0].Z) * (points[1].Z - points[0].Z));
+                    t = (c.Z - ((a.Z * c.X) / a.X)) / (b.Z - b.X / a.X);
                 }
-
-                s = (this.X - points[0].X - (points[2].X - points[0].X) * t) / (points[1].X - points[0].X);
+                
+                s = (c.X - b.X * t) / a.X;
             }
-            else if (points[1].Y - points[0].Y != 0)
+            else if (a.Y != 0)
             {
-                var den1 = (points[0].Y - points[2].Y) / (points[1].Y - points[0].Y);
-                if (den1 + (points[2].X - points[0].X)* (points[1].X - points[0].X) != 0)
+                if (b.X - (b.Y / a.Y) != 0)
                 {
-                    t = (this.X - points[0].X + (points[1].X - points[0].X * (this.Y - points[0].Y) / (points[1].Y - points[0].Y))) / (den1 + (points[2].X - points[0].X) * (points[1].X - points[0].X));
+                    t = (c.X - ((a.X * c.Y) / a.Y)) / (b.X - b.Y / a.Y);
                 }
-                else //will hope that everything will be ok with Z
+                else if (b.Z - (b.Y / a.Y) != 0)
                 {
-                    t = (this.Z - points[0].Z + (points[1].Z - points[0].Z * (this.Y - points[0].Y) / (points[1].Y - points[0].Y))) / (den1 + (points[2].Z - points[0].Z) * (points[1].Z - points[0].Z));
+                    t = (c.Z - ((a.Z * c.Y) / a.Y)) / (b.Z - b.Y / a.Y);
                 }
 
-                s = (this.Y - points[0].Y - (points[2].Y - points[0].Y) * t) / (points[1].Y - points[0].Y);
+                s = (c.Y - b.Y * t) / a.Y;
             }
-            else if (points[1].Z - points[0].Z != 0)
+            else if (a.Z != 0)
             {
-                var den1 = (points[0].Z - points[2].Z) / (points[1].Z - points[0].Z);
-                if (den1 + (points[2].X - points[0].X) * (points[1].X - points[0].X) != 0)
+                if (b.X - (b.Z / a.Z) != 0)
                 {
-                    t = (this.X - points[0].X + (points[1].X - points[0].X * (this.Z - points[0].Z) / (points[1].Z - points[0].Z))) / (den1 + (points[2].X - points[0].X) * (points[1].X - points[0].X));
+                    t = (c.X - ((a.X * c.Z) / a.Z)) / (b.X - b.Z / a.Z);
                 }
-                else //will hope that everything will be ok with y
+                else if (b.Y - (b.Z / a.Z) != 0)
                 {
-                    t = (this.Y - points[0].Y + (points[1].Y - points[0].Y * (this.Z - points[0].Z) / (points[1].Z - points[0].Z))) / (den1 + (points[2].Y - points[0].Y) * (points[1].Y - points[0].Y));
+                    t = (c.Y - ((a.Y * c.Z) / a.Z)) / (b.Y - b.Z / a.Z);
                 }
 
-                s = (this.Z - points[0].Z - (points[2].Z - points[0].Z) * t) / (points[1].Z - points[0].Z);
+                s = (c.Z - b.Z * t) / a.Z;
             }
 
-            return s >= 0 && s <= 1 && t >= 0 && t <= 1 && s + t <= 1;
+            return s >= 0 && t >= 0 && s + t <= 1;
         }
 
         public override bool Equals(object obj)

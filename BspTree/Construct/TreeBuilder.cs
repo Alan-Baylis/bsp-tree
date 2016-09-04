@@ -19,7 +19,7 @@ namespace BspTree.Construct
         {
             this._planes = planes.Select(x => new Plane
             {
-                Points = x.Points.Select(y => new Point { X =y.X, Y = y.Y, Z = y.Z }).ToList(),
+                Points = x.Points.Select(y => new Point { X = y.X, Y = y.Y, Z = y.Z }).ToList(),
                 NormVect = x.NormVect != null ? new Point { X = x.NormVect.X, Y = x.NormVect.Y, Z = x.NormVect.Z } : null
             }).ToList();
         }
@@ -52,8 +52,8 @@ namespace BspTree.Construct
             var splitter = planes.First();
             planes.Remove(splitter);
 
-            var leftPlanes = new List<Plane>();
-            var rightPlanes = new List<Plane>();
+            var innerPlanes = new List<Plane>();
+            var outerPlanes = new List<Plane>();
 
             foreach (var item in planes)
             {
@@ -76,51 +76,51 @@ namespace BspTree.Construct
                 {
                     //checking if intersection point lays on vertex
                     //intersection point equals to item.Points[0]
-                    if (point01.Equals(point02) && !point12.Equals(item.Points[1]) && !point12.Equals(item.Points[2]))
+                    if (point01.Equals(point02) && point12.IsInTriangle(item.Points.ToArray()))
                     {
                         if (LocalMath.ScalarProduct(splitter.NormVect, LocalMath.CreateVector(splitter.Points[0], item.Points[2])) > 0)
                         {
-                            rightPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point12, item.Points[2]));
-                            leftPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point12, item.Points[1]));
+                            outerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point12, item.Points[2]));
+                            innerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point12, item.Points[1]));
                         }
                         else
                         {
-                            leftPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point12, item.Points[2]));
-                            rightPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point12, item.Points[1]));
+                            innerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point12, item.Points[2]));
+                            outerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point12, item.Points[1]));
                         }
 
                         continue;
                     }
 
                     //intersection point equals to item.Points[1]
-                    if (point01.Equals(point12) && !point02.Equals(item.Points[0]) && !point02.Equals(item.Points[2]))
+                    if (point01.Equals(point12) && point02.IsInTriangle(item.Points.ToArray()))
                     {
                         if (LocalMath.ScalarProduct(splitter.NormVect, LocalMath.CreateVector(splitter.Points[0], item.Points[0])) > 0)
                         {
-                            rightPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point02, item.Points[0]));
-                            leftPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point02, item.Points[2]));
+                            outerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point02, item.Points[0]));
+                            innerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point02, item.Points[2]));
                         }
                         else
                         {
-                            rightPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point02, item.Points[0]));
-                            leftPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point02, item.Points[2]));
+                            outerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point02, item.Points[0]));
+                            innerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point02, item.Points[2]));
                         }
 
                         continue;
                     }
 
                     //intersection point equals to item.Points[2]
-                    if (point02.Equals(point12) && !point01.Equals(item.Points[0]) && !point01.Equals(item.Points[1]))
+                    if (point02.Equals(point12) && point01.IsInTriangle(item.Points.ToArray()))
                     {
                         if (LocalMath.ScalarProduct(splitter.NormVect, LocalMath.CreateVector(splitter.Points[0], item.Points[0])) > 0)
                         {
-                            rightPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point01, item.Points[0]));
-                            leftPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point01, item.Points[1]));
+                            outerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point01, item.Points[0]));
+                            innerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point01, item.Points[1]));
                         }
                         else
                         {
-                            leftPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point01, item.Points[0]));
-                            rightPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point01, item.Points[1]));
+                            innerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point01, item.Points[0]));
+                            outerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point01, item.Points[1]));
                         }
 
                         continue;
@@ -131,15 +131,15 @@ namespace BspTree.Construct
                     {
                         if (LocalMath.ScalarProduct(splitter.NormVect, LocalMath.CreateVector(splitter.Points[0], item.Points[0])) > 0)
                         {
-                            rightPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point01, point02));
-                            leftPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point01, point02));
-                            leftPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point01, point02));
+                            outerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point01, point02));
+                            innerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point01, point02));
+                            innerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point01, point02));
                         }
                         else
                         {
-                            leftPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point01, point02));
-                            rightPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point01, point02));
-                            rightPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point01, point02));
+                            innerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point01, point02));
+                            outerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point01, point02));
+                            outerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point01, point02));
                         }
 
                         continue;
@@ -149,15 +149,15 @@ namespace BspTree.Construct
                     {
                         if (LocalMath.ScalarProduct(splitter.NormVect, LocalMath.CreateVector(splitter.Points[0], item.Points[1])) > 0)
                         {
-                            rightPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point01, point12));
-                            leftPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point01, point12));
-                            leftPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point01, point12));
+                            outerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point01, point12));
+                            innerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point01, point12));
+                            innerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point01, point12));
                         }
                         else
                         {
-                            leftPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point01, point12));
-                            rightPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point01, point12));
-                            rightPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point01, point12));
+                            innerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point01, point12));
+                            outerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point01, point12));
+                            outerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point01, point12));
                         }
 
                         continue;
@@ -167,15 +167,15 @@ namespace BspTree.Construct
                     {
                         if (LocalMath.ScalarProduct(splitter.NormVect, LocalMath.CreateVector(splitter.Points[0], item.Points[2])) > 0)
                         {
-                            rightPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point02, point12));
-                            leftPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point02, point12));
-                            leftPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point02, point12));
+                            outerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point02, point12));
+                            innerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point02, point12));
+                            innerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point02, point12));
                         }
                         else
                         {
-                            leftPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point02, point12));
-                            rightPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point02, point12));
-                            rightPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point02, point12));
+                            innerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[2], point02, point12));
+                            outerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[0], point02, point12));
+                            outerPlanes.Add(LocalMath.CreatePlaneFrom(item, item.Points[1], point02, point12));
                         }
 
                         continue;
@@ -185,11 +185,11 @@ namespace BspTree.Construct
                     //place it in the correct array
                     if (LocalMath.ScalarProduct(splitter.NormVect, LocalMath.CreateVector(splitter.Points[0], item.Points[0])) > 0)
                     {
-                        rightPlanes.Add(item);
+                        outerPlanes.Add(item);
                     }
                     else
                     {
-                        leftPlanes.Add(item);
+                        innerPlanes.Add(item);
                     }
                 }
                 else
@@ -197,11 +197,11 @@ namespace BspTree.Construct
                     //if there is no intersection points - analyzing location of current plane and place it in the correct array
                     if (LocalMath.ScalarProduct(splitter.NormVect, LocalMath.CreateVector(splitter.Points[0], item.Points[0])) > 0)
                     {
-                        rightPlanes.Add(item);
+                        outerPlanes.Add(item);
                     }
                     else
                     {
-                        leftPlanes.Add(item);
+                        innerPlanes.Add(item);
                     }
                 }
             }
@@ -209,8 +209,8 @@ namespace BspTree.Construct
             return new Tree
             {
                 Plane = splitter,
-                Left = this.CreateNode(splitter, leftPlanes),
-                Right = this.CreateNode(splitter, rightPlanes)
+                Inner = this.CreateNode(splitter, innerPlanes),
+                Outer = this.CreateNode(splitter, outerPlanes)
             };
         }
 
@@ -295,7 +295,7 @@ namespace BspTree.Construct
             var vec = LocalMath.VectorProduct(plane1.NormVect, plane2.NormVect);
             //then assembled equations should be resolved in order to find point on intersect line
             //|A1*x + B1*y + C1*z + D1 = 0
-            //|A2*z + B2*y + C2*z + D2 = 0
+            //|A2*x + B2*y + C2*z + D2 = 0
             //from first equation
             //x = 0 -> y = -(C1*z + D1)/B1, z = -(B1*y + D1)/C1
             //y = 0 -> x = -(C1*z + D1)/A1, z = -(A1*y + D1)/C1
@@ -423,7 +423,10 @@ namespace BspTree.Construct
             var result = 0;
             foreach (var item in this._planes)
             {
-                if (!item.NormVect.Equals(normal))
+                if (item.NormVect.X * p.X +
+                    item.NormVect.Y * p.Y +
+                    item.NormVect.Z * p.Z +
+                    item.D != 0)
                 {
                     //attempt to find intersection point
                     //taking line equation as 
@@ -437,7 +440,7 @@ namespace BspTree.Construct
                     {
                         var t = -(item.NormVect.X * p.X + item.NormVect.Y * p.Y + item.NormVect.Z * p.Z + item.D) / den;
                         //checking that intersection point is in correct half-space
-                        if (t >= 0)
+                        if (t > 0) // if t == 0 then it is the same plane
                         {
                             var intersectPoint = new Point
                             {

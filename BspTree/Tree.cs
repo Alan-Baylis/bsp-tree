@@ -11,8 +11,8 @@ namespace BspTree
     public class Tree
     {
         public Plane Plane { get; set; }
-        public Tree Left { get; set; }
-        public Tree Right { get; set; }
+        public Tree Inner { get; set; }
+        public Tree Outer { get; set; }
         public bool IsEmpty { get; set; }
 
         public bool Contains(System.Windows.Point point)
@@ -32,14 +32,14 @@ namespace BspTree
             }
 
             var contains = false;
-            if (this.Left != null)
+            if (this.Inner != null)
             {
-                contains |= this.Left.Contains(point);
+                contains |= this.Inner.Contains(point);
             }
 
-            if (this.Right != null)
+            if (this.Outer != null)
             {
-                contains |= this.Right.Contains(point);
+                contains |= this.Outer.Contains(point);
             }
 
             return contains;
@@ -55,14 +55,14 @@ namespace BspTree
                 this.Plane.Points[i] = Geometry.MultipleOnMatrix(this.Plane.Points[i], rotationMatrix);
             }
 
-            if (this.Left != null)
+            if (this.Inner != null)
             {
-                this.Left.Rotate(axis, angle);
+                this.Inner.Rotate(axis, angle);
             }
 
-            if (this.Right != null)
+            if (this.Outer != null)
             {
-                this.Right.Rotate(axis, angle);
+                this.Outer.Rotate(axis, angle);
             }
         }
 
@@ -76,14 +76,14 @@ namespace BspTree
                 this.Plane.Points[i] = Geometry.MultipleOnMatrix(this.Plane.Points[i], rotationMatrix);
             }
 
-            if (this.Left != null)
+            if (this.Inner != null)
             {
-                this.Left.Rotate(axis, angle);
+                this.Inner.Rotate(axis, angle);
             }
 
-            if (this.Right != null)
+            if (this.Outer != null)
             {
-                this.Right.Rotate(axis, angle);
+                this.Outer.Rotate(axis, angle);
             }
         }
 
@@ -96,14 +96,14 @@ namespace BspTree
                 this.Plane.Points[i] = Geometry.MultipleOnMatrix(this.Plane.Points[i], transitionMatrix);
             }
 
-            if (this.Left != null)
+            if (this.Inner != null)
             {
-                this.Left.MoveAlong(axis, distance);
+                this.Inner.MoveAlong(axis, distance);
             }
 
-            if (this.Right != null)
+            if (this.Outer != null)
             {
-                this.Right.MoveAlong(axis, distance);
+                this.Outer.MoveAlong(axis, distance);
             }
         }
 
@@ -116,14 +116,14 @@ namespace BspTree
                 this.Plane.Points[i] = Geometry.MultipleOnMatrix(this.Plane.Points[i], scaleMatrix);
             }
 
-            if (this.Left != null)
+            if (this.Inner != null)
             {
-                this.Left.Scale(coeff);
+                this.Inner.Scale(coeff);
             }
 
-            if (this.Right != null)
+            if (this.Outer != null)
             {
-                this.Right.Scale(coeff);
+                this.Outer.Scale(coeff);
             }
         }
 
@@ -143,8 +143,8 @@ namespace BspTree
 
             result.Add(node.Plane);
 
-            GetPlane(node.Left, result);
-            GetPlane(node.Right, result);
+            GetPlane(node.Inner, result);
+            GetPlane(node.Outer, result);
         }
     }
 }

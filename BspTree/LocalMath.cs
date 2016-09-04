@@ -51,7 +51,12 @@ namespace BspTree
 
             var max = new[] { Math.Abs(x), Math.Abs(y), Math.Abs(z) }.Max();
             if (max == 0)
-                throw new ArgumentException();
+                return new Point
+                {
+                    X = 0,
+                    Y = 0,
+                    Z = 0
+                };
 
             return new Point
             {

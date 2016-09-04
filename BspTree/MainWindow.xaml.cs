@@ -100,19 +100,19 @@ namespace BspTree
             var lookVect = new Base.Point { X = 0, Y = 0, Z = 1 };
             if (LocalMath.ScalarProduct(tree.Plane.NormVect, lookVect) > 0)
             {
-                this.Draw(tree.Left);
+                this.Draw(tree.Inner);
 
                 canvas.Children.Add(tree.Plane.GetPolygon());
 
-                this.Draw(tree.Right);
+                this.Draw(tree.Outer);
             }
             else
             {
-                this.Draw(tree.Right);
+                this.Draw(tree.Outer);
 
                 canvas.Children.Add(tree.Plane.GetPolygon());
 
-                this.Draw(tree.Left);
+                this.Draw(tree.Inner);
             }
         }
 
