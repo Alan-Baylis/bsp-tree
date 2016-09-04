@@ -34,15 +34,15 @@ namespace BspTree.Base
         public Point GetRandomPoint()
         {
             var random = new Random(DateTime.Now.Millisecond);
-            var multiplier = 1.0 / random.Next(2, 100);
+            var multiplier = 1.0 / random.Next(2, 10);
             var vec1 = LocalMath.CreateVector(this.Points[0], this.Points[1]);
             var vec2 = LocalMath.CreateVector(this.Points[0], this.Points[2]);
 
             return new Point
             {
-                X = this.Points[0].X + multiplier * vec1.X + multiplier * vec2.X,
-                Y = this.Points[0].Y + multiplier * vec1.Y + multiplier * vec2.Y,
-                Z = this.Points[0].Z + multiplier * vec1.Z + multiplier * vec2.Z
+                X = this.Points[0].X + multiplier * (vec1.X + vec2.X),
+                Y = this.Points[0].Y + multiplier * (vec1.Y + vec2.Y),
+                Z = this.Points[0].Z + multiplier * (vec1.Z + vec2.Z)
             };
         }
 
