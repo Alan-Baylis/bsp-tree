@@ -33,16 +33,19 @@ namespace BspTree.Base
         #region Methods
         public Point GetRandomPoint()
         {
-            var random = new Random(DateTime.Now.Millisecond);
+            var random = new Random();
             Func<double> multiplier = () => 1.0 / random.Next(2, 10);
             var vec1 = LocalMath.CreateVector(this.Points[0], this.Points[1]);
             var vec2 = LocalMath.CreateVector(this.Points[0], this.Points[2]);
 
+            var s = multiplier();
+            var t = multiplier();
+
             return new Point
             {
-                X = this.Points[0].X + multiplier() * vec1.X + multiplier() * vec2.X,
-                Y = this.Points[0].Y + multiplier() * vec1.Y + multiplier() * vec2.Y,
-                Z = this.Points[0].Z + multiplier() * vec1.Z + multiplier() * vec2.Z
+                X = this.Points[0].X + s * vec1.X + t * vec2.X,
+                Y = this.Points[0].Y + s * vec1.Y + t * vec2.Y,
+                Z = this.Points[0].Z + s * vec1.Z + t * vec2.Z
             };
         }
 
