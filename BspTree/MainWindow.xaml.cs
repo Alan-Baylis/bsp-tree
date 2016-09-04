@@ -30,6 +30,14 @@ namespace BspTree
         public MainWindow()
         {
             InitializeComponent();
+
+            this.Read();
+
+            this.Draw();
+        }
+
+        private void Read()
+        {
             this._trees = new List<Tree>();
 
             var polyhedra = ImportBuilder
@@ -60,10 +68,7 @@ namespace BspTree
                 var treeBuilder = new TreeBuilder(polyhedronPlanes);
                 this._trees.Add(treeBuilder.Construct());
             }
-
-            this.Draw();
         }
-
         private void Draw()
         {
             this.canvas.Children.Clear();
@@ -166,7 +171,7 @@ namespace BspTree
 
         private void canvas_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            var coeff = e.Delta > 0 ? 1.5 : 1.0/1.5;
+            var coeff = e.Delta > 0 ? 1.5 : 1.0 / 1.5;
 
             foreach (var item in this._trees)
             {
@@ -180,6 +185,16 @@ namespace BspTree
         {
             this._transitionPoint = null;
             this.Draw();
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.R)
+            {
+                this.Read();
+
+                this.Draw();
+            }
         }
     }
 }
