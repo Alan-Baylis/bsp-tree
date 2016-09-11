@@ -31,15 +31,12 @@ namespace BspTree.Base
         #endregion
 
         #region Methods
-        public Point GetRandomPoint()
+        public Point GetPointOnPlane()
         {
-            var random = new Random();
-            Func<double> multiplier = () => 1.0 / random.Next(2, 10);
             var vec1 = LocalMath.CreateVector(this.Points[0], this.Points[1]);
             var vec2 = LocalMath.CreateVector(this.Points[0], this.Points[2]);
 
-            var s = multiplier();
-            var t = multiplier();
+            double s = 1.0/2, t = 1.0/9;
 
             return new Point
             {

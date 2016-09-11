@@ -409,7 +409,7 @@ namespace BspTree.Construct
             var normal = plane.NormVect;
 
             //if we take one of vertex points it can give the false positive result
-            var p = plane.GetRandomPoint();
+            var p = plane.GetPointOnPlane();
 
             var straightCounter = this.TestNormal(p, normal);
 
