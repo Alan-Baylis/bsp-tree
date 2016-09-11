@@ -63,7 +63,7 @@ namespace BspTree.Base
 
             if (points.Length != 3)
             {
-                throw new ArgumentException("For this method using you should pass triangle");
+                throw new ArgumentException("For this method you should pass triangle");
             }
             #endregion
             //using barycentric coordinates for this

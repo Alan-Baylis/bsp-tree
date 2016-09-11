@@ -1,18 +1,18 @@
 [
-//	{
-//		points: [
-//			{ x: 60, y: 60, z: 100, label: 'v_top' },
-//			{ x: 10, y: 10, z: 0, label: 'v_bottom_left' },
-//			{ x: 110, y: 10, z: 0, label: 'v_bottom_right' },
-//			{ x: 60, y: 110, z: 0, label: 'v_bottom_middle' }
-//		],
-//		planes: [
-//			['v_top', 'v_bottom_left', 'v_bottom_right' ],
-//			['v_top', 'v_bottom_left', 'v_bottom_middle' ],
-//			['v_top', 'v_bottom_right', 'v_bottom_middle' ],
-//			['v_bottom_left', 'v_bottom_right', 'v_bottom_middle' ]
-//		]
-//	},
+	{
+		points: [
+			{ x: 60, y: 60, z: 100, label: 'v_top' },
+			{ x: 10, y: 10, z: 0, label: 'v_bottom_left' },
+			{ x: 110, y: 10, z: 0, label: 'v_bottom_right' },
+			{ x: 60, y: 110, z: 0, label: 'v_bottom_middle' }
+		],
+		planes: [
+			['v_top', 'v_bottom_left', 'v_bottom_right' ],
+			['v_top', 'v_bottom_left', 'v_bottom_middle' ],
+			['v_top', 'v_bottom_right', 'v_bottom_middle' ],
+			['v_bottom_left', 'v_bottom_right', 'v_bottom_middle' ]
+		]
+	},
 	{
 		points: [
 			{ x: 200, y: 200, z: 0, label: 'v0' },

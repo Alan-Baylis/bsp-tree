@@ -1,5 +1,6 @@
 ﻿using BspTree.Base;
 using BspTree.Import;
+using MathExt;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -76,7 +77,7 @@ namespace BspTree.Construct
                 {
                     //checking if intersection point lays on vertex
                     //intersection point equals to item.Points[0]
-                    if (point01.Equals(point02) && point12.IsInTriangle(item.Points.ToArray()))
+                    if (point01.Equals(item.Points[0]) && point02.Equals(item.Points[0]) && point12.IsInTriangle(item.Points.ToArray()))
                     {
                         if (LocalMath.ScalarProduct(splitter.NormVect, LocalMath.CreateVector(splitter.Points[0], item.Points[2])) > 0)
                         {
@@ -93,7 +94,7 @@ namespace BspTree.Construct
                     }
 
                     //intersection point equals to item.Points[1]
-                    if (point01.Equals(point12) && point02.IsInTriangle(item.Points.ToArray()))
+                    if (point01.Equals(item.Points[1]) && point12.Equals(item.Points[1]) && point02.IsInTriangle(item.Points.ToArray()))
                     {
                         if (LocalMath.ScalarProduct(splitter.NormVect, LocalMath.CreateVector(splitter.Points[0], item.Points[0])) > 0)
                         {
@@ -110,7 +111,7 @@ namespace BspTree.Construct
                     }
 
                     //intersection point equals to item.Points[2]
-                    if (point02.Equals(point12) && point01.IsInTriangle(item.Points.ToArray()))
+                    if (point02.Equals(item.Points[2]) && point12.Equals(item.Points[2]) && point01.IsInTriangle(item.Points.ToArray()))
                     {
                         if (LocalMath.ScalarProduct(splitter.NormVect, LocalMath.CreateVector(splitter.Points[0], item.Points[0])) > 0)
                         {
@@ -127,7 +128,8 @@ namespace BspTree.Construct
                     }
 
                     //intersection point lays on bound and does not equal to vertex
-                    if (point01.IsBetween(item.Points[0], item.Points[1]) && point02.IsBetween(item.Points[0], item.Points[2]))
+                    if (point01.IsBetween(item.Points[0], item.Points[1]) && point02.IsBetween(item.Points[0], item.Points[2])
+                        && !point01.Equals(item.Points[0]) && !point01.Equals(item.Points[1]) && !point02.Equals(item.Points[0]) && !point02.Equals(item.Points[2]))
                     {
                         if (LocalMath.ScalarProduct(splitter.NormVect, LocalMath.CreateVector(splitter.Points[0], item.Points[0])) > 0)
                         {
@@ -145,7 +147,8 @@ namespace BspTree.Construct
                         continue;
                     }
 
-                    if (point01.IsBetween(item.Points[0], item.Points[1]) && point12.IsBetween(item.Points[1], item.Points[2]))
+                    if (point01.IsBetween(item.Points[0], item.Points[1]) && point12.IsBetween(item.Points[1], item.Points[2])
+                        && !point01.Equals(item.Points[0]) && !point01.Equals(item.Points[1]) && !point12.Equals(item.Points[1]) && !point02.Equals(item.Points[2]))
                     {
                         if (LocalMath.ScalarProduct(splitter.NormVect, LocalMath.CreateVector(splitter.Points[0], item.Points[1])) > 0)
                         {
@@ -163,7 +166,8 @@ namespace BspTree.Construct
                         continue;
                     }
 
-                    if (point02.IsBetween(item.Points[0], item.Points[2]) && point12.IsBetween(item.Points[1], item.Points[2]))
+                    if (point02.IsBetween(item.Points[0], item.Points[2]) && point12.IsBetween(item.Points[1], item.Points[2])
+                        && !point01.Equals(item.Points[0]) && !point01.Equals(item.Points[2]) && !point12.Equals(item.Points[1]) && !point02.Equals(item.Points[2]))
                     {
                         if (LocalMath.ScalarProduct(splitter.NormVect, LocalMath.CreateVector(splitter.Points[0], item.Points[2])) > 0)
                         {
@@ -430,34 +434,66 @@ namespace BspTree.Construct
                     item.NormVect.Z * p.Z +
                     item.D != 0)
                 {
-                    //attempt to find intersection point
-                    //taking line equation as 
-                    // | x = p.x + normal.x * t;
-                    // | y = p.y + normal.y * t;
-                    // | z = p.z + normal.z * t;
-                    var den = item.NormVect.X * normal.X +
-                        item.NormVect.Y * normal.Y +
-                        item.NormVect.Z * normal.Z;
-                    if (den != 0)
-                    {
-                        var t = -(item.NormVect.X * p.X + item.NormVect.Y * p.Y + item.NormVect.Z * p.Z + item.D) / den;
-                        //checking that intersection point is in correct half-space
-                        if (t > 0) // if t == 0 then it is the same plane
-                        {
-                            var intersectPoint = new Point
-                            {
-                                X = p.X + normal.X * t,
-                                Y = p.Y + normal.Y * t,
-                                Z = p.Z + normal.Z * t
-                            };
 
-                            //check that intersection point lays in required polygon
-                            if (intersectPoint.IsInTriangle(item.Points.ToArray()))
-                            {
-                                result++;
-                            }
+                    //taking plane in vectors representation
+
+                    var vec1 = LocalMath.CreateVector(item.Points[0], item.Points[1]);
+                    var vec2 = LocalMath.CreateVector(item.Points[0], item.Points[2]);
+
+                    var matrixA = Matrix.Create(new double[][] {
+                        new double[] { vec1.X, vec2.X, -normal.X },
+                        new double[] {vec1.Y, vec2.Y, -normal.Y},
+                        new double[] {vec1.Z, vec2.Z, -normal.Z}
+                    });
+
+                    var matrixB = Matrix.Create(new double[][] {
+                        new double[] { p.X - item.Points[0].X},
+                        new double[] {p.Y - item.Points[0].Y},
+                        new double[] {p.Z - item.Points[0].Z}
+                    });
+
+                    var solver = new LESolver();
+                    var solveResult = solver.Solve(matrixA, matrixB);
+                    var t = solveResult[2];
+                    if (!double.IsNaN(t) && !double.IsInfinity(t) && t > 0)
+                    {
+                        var vecCoeff1 = solveResult[0];
+                        var vecCoeff2 = solveResult[1];
+
+                        if (vecCoeff1 >= 0 && vecCoeff2 >= 0 && vecCoeff1 + vecCoeff2 <= 1)
+                        {
+                            result++;
                         }
                     }
+
+                    ////attempt to find intersection point
+                    ////taking line equation as 
+                    //// | x = p.x + normal.x * t;
+                    //// | y = p.y + normal.y * t;
+                    //// | z = p.z + normal.z * t;
+                    //var den = item.NormVect.X * normal.X +
+                    //    item.NormVect.Y * normal.Y +
+                    //    item.NormVect.Z * normal.Z;
+                    //if (den != 0)
+                    //{
+                    //    var t = -(item.NormVect.X * p.X + item.NormVect.Y * p.Y + item.NormVect.Z * p.Z + item.D) / den;
+                    //    //checking that intersection point is in correct half-space
+                    //    if (t > 0)
+                    //    {
+                    //        var intersectPoint = new Point
+                    //        {
+                    //            X = p.X + normal.X * t,
+                    //            Y = p.Y + normal.Y * t,
+                    //            Z = p.Z + normal.Z * t
+                    //        };
+
+                    //        //check that intersection point lays in required polygon
+                    //        if (intersectPoint.IsInTriangle(item.Points.ToArray()))
+                    //        {
+                    //            result++;
+                    //        }
+                    //    }
+                    //}
                 }
             }
 

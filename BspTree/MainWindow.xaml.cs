@@ -118,7 +118,7 @@ namespace BspTree
 
         private void canvas_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed)
+            if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed)
             {
                 var position = e.GetPosition(this.canvas);
 
@@ -127,7 +127,7 @@ namespace BspTree
                     this._lastTransitionPoint = this._transitionPoint;
                 }
 
-                if (move)
+                if (e.RightButton == MouseButtonState.Pressed)
                 {
                     foreach (var item in this._trees)
                     {
