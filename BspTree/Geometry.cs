@@ -17,12 +17,12 @@ namespace BspTree
     /// <summary>
     /// Helpers for performing geometry operations
     /// </summary>
-    public static class Geometry
+    public class Geometry
     {
         /// <summary>
         /// Performs transforming of point with matrix
         /// </summary>
-        public static Point MultipleOnMatrix(Point p, double[][] matrix)
+        public Point MultipleOnMatrix(Point p, double[][] matrix)
         {
             #region Validation
             if (p == null)
@@ -54,7 +54,7 @@ namespace BspTree
         /// <summary>
         /// Performs multiplication of point and transformation matrix row
         /// </summary>
-        private static double Multiple(Point p, double[] matrixColumn)
+        private double Multiple(Point p, double[] matrixColumn)
         {
             #region Validation
             if (matrixColumn.Length != 4)
@@ -69,7 +69,7 @@ namespace BspTree
         /// <summary>
         /// Creates transformation matrix for rotation around the axis with angle in degrees
         /// </summary>
-        public static double[][] CreateRotationMatrix(WorkAxis axis, double angle)
+        public double[][] CreateRotationMatrix(WorkAxis axis, double angle)
         {
             var modifiedAngle = ConvertToRad(angle);
             var result = CreateIdentityMatrix();
@@ -102,7 +102,7 @@ namespace BspTree
         /// <summary>
         /// Creates transformation matrix for rotation around the axis passing through shift with angle in degrees
         /// </summary>
-        public static double[][] CreateRotationMatrix(WorkAxis axis, double shift, double angle)
+        public double[][] CreateRotationMatrix(WorkAxis axis, double shift, double angle)
         {
             var modifiedAngle = ConvertToRad(angle);
             var result = CreateIdentityMatrix();
@@ -135,7 +135,7 @@ namespace BspTree
         /// <summary>
         /// Creates transformation matrix for transition along with the axis with coefficient
         /// </summary>
-        public static double[][] CreateTransitionMatrix(WorkAxis axis, double coeff)
+        public double[][] CreateTransitionMatrix(WorkAxis axis, double coeff)
         {
             var result = CreateIdentityMatrix();
 
@@ -158,7 +158,7 @@ namespace BspTree
         /// <summary>
         /// Creates transformation matrix for scale with coefficient
         /// </summary>
-        public static double[][] CreateScaleMatrix(double coeff)
+        public double[][] CreateScaleMatrix(double coeff)
         {
             var result = CreateIdentityMatrix();
 
@@ -169,12 +169,12 @@ namespace BspTree
             return result;
         }
 
-        private static double ConvertToRad(double angle)
+        private double ConvertToRad(double angle)
         {
             return angle * Math.PI / 180.0;
         }
 
-        private static double[][] CreateIdentityMatrix()
+        private double[][] CreateIdentityMatrix()
         {
             return new double[][]
             {

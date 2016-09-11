@@ -10,11 +10,25 @@ namespace BspTree
 {
     public class Tree
     {
+        #region Fields
+        private Geometry _geometry; 
+        #endregion
+
+        #region Properties
         public Plane Plane { get; set; }
         public Tree Inner { get; set; }
         public Tree Outer { get; set; }
         public bool IsEmpty { get; set; }
+        #endregion
 
+        #region Constructors
+        public Tree()
+        {
+            this._geometry = new Geometry();
+        }
+        #endregion
+
+        #region Methods
         public bool Contains(System.Windows.Point point)
         {
             //setting x and y in plane equation.
@@ -47,33 +61,12 @@ namespace BspTree
 
         public void Rotate(WorkAxis axis, double angle)
         {
-            var rotationMatrix = Geometry.CreateRotationMatrix(axis, angle);
-            this.Plane.NormVect = Geometry.MultipleOnMatrix(this.Plane.NormVect, rotationMatrix);
+            var rotationMatrix = this._geometry.CreateRotationMatrix(axis, angle);
+            this.Plane.NormVect = this._geometry.MultipleOnMatrix(this.Plane.NormVect, rotationMatrix);
 
             for (int i = 0; i < this.Plane.Points.Count; i++)
             {
-                this.Plane.Points[i] = Geometry.MultipleOnMatrix(this.Plane.Points[i], rotationMatrix);
-            }
-
-            if (this.Inner != null)
-            {
-                this.Inner.Rotate(axis, angle);
-            }
-
-            if (this.Outer != null)
-            {
-                this.Outer.Rotate(axis, angle);
-            }
-        }
-
-        public void Rotate(WorkAxis axis, double shift, double angle)
-        {
-            var rotationMatrix = Geometry.CreateRotationMatrix(axis, angle);
-            this.Plane.NormVect = Geometry.MultipleOnMatrix(this.Plane.NormVect, rotationMatrix);
-
-            for (int i = 0; i < this.Plane.Points.Count; i++)
-            {
-                this.Plane.Points[i] = Geometry.MultipleOnMatrix(this.Plane.Points[i], rotationMatrix);
+                this.Plane.Points[i] = this._geometry.MultipleOnMatrix(this.Plane.Points[i], rotationMatrix);
             }
 
             if (this.Inner != null)
@@ -89,11 +82,11 @@ namespace BspTree
 
         public void MoveAlong(WorkAxis axis, double distance)
         {
-            var transitionMatrix = Geometry.CreateTransitionMatrix(axis, distance);
+            var transitionMatrix = this._geometry.CreateTransitionMatrix(axis, distance);
 
             for (int i = 0; i < this.Plane.Points.Count; i++)
             {
-                this.Plane.Points[i] = Geometry.MultipleOnMatrix(this.Plane.Points[i], transitionMatrix);
+                this.Plane.Points[i] = this._geometry.MultipleOnMatrix(this.Plane.Points[i], transitionMatrix);
             }
 
             if (this.Inner != null)
@@ -109,11 +102,11 @@ namespace BspTree
 
         public void Scale(double coeff)
         {
-            var scaleMatrix = Geometry.CreateScaleMatrix(coeff);
+            var scaleMatrix = this._geometry.CreateScaleMatrix(coeff);
 
             for (int i = 0; i < this.Plane.Points.Count; i++)
             {
-                this.Plane.Points[i] = Geometry.MultipleOnMatrix(this.Plane.Points[i], scaleMatrix);
+                this.Plane.Points[i] = this._geometry.MultipleOnMatrix(this.Plane.Points[i], scaleMatrix);
             }
 
             if (this.Inner != null)
@@ -126,25 +119,6 @@ namespace BspTree
                 this.Outer.Scale(coeff);
             }
         }
-
-        public List<Plane> GetPlanes()
-        {
-            var result = new List<Plane>();
-
-            GetPlane(this, result);
-
-            return result;
-        }
-
-        private void GetPlane(Tree node, List<Plane> result)
-        {
-            if (node == null)
-                return;
-
-            result.Add(node.Plane);
-
-            GetPlane(node.Inner, result);
-            GetPlane(node.Outer, result);
-        }
+        #endregion
     }
 }
